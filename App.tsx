@@ -1,5 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { useEffect } from 'react';
+import { StatusBar } from 'expo-status-bar';
+import { useEffect, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -8,10 +9,14 @@ import {
 } from 'react-native';
 import Animated, {
   Easing,
+  interpolate,
   interpolateColor,
+  runOnJS,
+  useAnimatedProps,
   useSharedValue,
   withRepeat,
   withSequence,
+  withSpring,
   withTiming,
 } from 'react-native-reanimated';
 import {
@@ -26,6 +31,12 @@ export default function App() {
   const colorsValue1 = useSharedValue(1);
   const colorsValue2 = useSharedValue(1);
   const colorsValue3 = useSharedValue(1);
+
+  const [androidColors, setAndroidColors] = useState([
+    '#7AF5C1',
+    '#7FEC90',
+    '#EFFB60',
+  ]);
 
   useEffect(() => {
     colorsValue1.value = withRepeat(
@@ -74,6 +85,32 @@ export default function App() {
     );
   }, []);
 
+  const animatedProps = useAnimatedProps(() => {
+    const colors = [
+      interpolateColor(
+        colorsValue1.value,
+        [0, 1, 2],
+        ['#7AF5C1', '#80E987', '#EFFB60']
+      ),
+      interpolateColor(
+        colorsValue2.value,
+        [0, 1, 2],
+        ['#80E987', '#EFFB60', '#7AF5C1']
+      ),
+      interpolateColor(
+        colorsValue3.value,
+        [0, 1, 2],
+        ['#EFFB60', '#7AF5C1', '#80E987']
+      ),
+    ];
+
+    runOnJS(setAndroidColors)(colors);
+
+    return {
+      colors,
+    };
+  });
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container}>
@@ -96,6 +133,7 @@ export default function App() {
                 ['#EFFB60', '#7AF5C1', '#80E987']
               ),
             ]}
+            // animatedProps={animatedProps}
             start={{ x: 0, y: 0.6 }}
             end={{ x: 1, y: 0 }}
             style={styles.linearGradient}
